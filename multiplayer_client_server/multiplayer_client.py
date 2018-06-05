@@ -1,6 +1,6 @@
 import socket, select, threading
 
-host = socket.gethostname()
+host = '127.0.0.1'
 
 addr = (host, 5963)
 
@@ -26,7 +26,7 @@ def lis(s):
 def talk(s):
     while True:
         try:
-            info = raw_input()
+            info = input()
         except Exception as e:
             print('can\'t input')
             exit()
@@ -38,11 +38,23 @@ def talk(s):
 
 
 def main():
-    ss = conn()
-    t = threading.Thread(target=lis, args=(ss,))
-    t.start()
-    t1 = threading.Thread(target=talk, args=(ss,))
-    t1.start()
+    my_sock = conn()
+
+    # 接收欢迎消息:
+    print(my_sock.recv(1024).decode('utf-8'))
+
+    # 输入聊天内容，输入0则断开
+    while True:
+        content = input()
+        if content != 'exit':
+            # 发送数据:
+            my_sock.send(content.encode('utf-8'))
+            feadback = my_sock.recv(1024).decode('utf-8')
+            print (feadback)
+        else:
+            print ('exit chating...')
+            break
+    my_sock.close()
 
 
 if __name__ == '__main__':
